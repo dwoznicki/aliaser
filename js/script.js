@@ -1,4 +1,4 @@
-$('input').on('keydown', function(e) {
+$('body').on('keydown', 'input', function(e) {
   var code = (e.keyCode ? e.keyCode : e.which);
   if(code == 9) {
     var input = $(this).val();

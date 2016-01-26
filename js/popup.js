@@ -38,7 +38,7 @@ function getAliases() {
 	$('#aliases').children().remove()
 	chrome.storage.local.get(null, function(items) {
 		$.each(items, function(alias, full) {
-			$('#aliases').append("<div class='alias'>" + alias + ": " + full + " <a href='#' class='remove-alias'>&times;</a></div>");
+			$('#aliases').append("<li><span class='alias'>" + alias + "</span> <i class='fa fa-arrow-right'></i> <span class='full'>" + full + "</span> <a href='#' class='remove-alias'><i class='fa fa-times-circle'></i></a></li>");
 		});
 	});
 };
