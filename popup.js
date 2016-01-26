@@ -1,40 +1,44 @@
 $(document).ready(function() {
 	bindListeners()
-	getShortcuts();
+	getAliases();
 });
 
 function bindListeners() {
-	$('#new-shortcut').on('submit', function(e) {
+	$('#new-alias').on('submit', function(e) {
 	  e.preventDefault();
-	  var shortcut = $('#shortcut-text').val()
-	  var replacement = $('#replacement-text').val()	
-	  setShortcut(shortcut, replacement);
+	  var alias = $('#alias-text').val()
+	  var full = $('#full-text').val()	
+	  setAlias(alias, full);
 	});
-	$('#shortcuts').on('click', '.remove-shortcut', function(e) {
+	$('#aliases').on('click', '.remove-alias', function(e) {
 		var element = $(this).parent();
-		removeShortcut(element);
+		var alias = element.text().split(":")[0]
+		removeAlias(alias);
 	});
 };
 
-function setShortcut(shortcut, replacement) {
+function setAlias(alias, full) {
 	var save = {};
-	save[shortcut] = replacement;
+	save[alias] = full;
 
 	chrome.storage.local.set(save, function() {
 	  console.log('Shortcut saved');
-	  var shortcut = $('#shortcut-text').val("");
-	  var replacement = $('#replacement-text').val("");
+	  var alias = $('#alias-text').val("");
+	  var full = $('#full-text').val("");
+	  getAliases();
 	});
 };
 
-function removeShortcut(element) {
-	chrome.storage.local.remove()
-}
+function removeAlias(alias) {
+	chrome.storage.local.remove(alias);
+	getAliases();
+};
 
-function getShortcuts() {
+function getAliases() {
+	$('#aliases').children().remove()
 	chrome.storage.local.get(null, function(items) {
-		$.each(items, function(shortcut, replacement) {
-			$('#shortcuts').append("<div class='shortcut'>" + shortcut + ": " + replacement + " <a href='#' class='remove-shortcut'>&times;</a></div>");
+		$.each(items, function(alias, full) {
+			$('#aliases').append("<div class='alias'>" + alias + ": " + full + " <a href='#' class='remove-alias'>&times;</a></div>");
 		});
 	});
 };
