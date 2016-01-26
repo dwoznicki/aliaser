@@ -1,0 +1,70 @@
+body {
+	color: #4c4b4b;
+	min-width: 27em;
+	font-size: 1.6em;
+	margin: 0.3em;
+}
+
+input {
+	font-size: 1.1em;
+	margin: 0.2em;
+}
+	#alias-text {
+		width: 85%;
+	}
+	#full-text {
+		width: 100%;
+	}
+
+a {
+	text-decoration: none;
+	color: #4c4b4b;
+}
+
+h2 {
+	font-size: 1.5em;
+}
+
+button {
+	background: none;
+	border: none;
+}
+	button:focus, input:focus {
+		outline: none;
+	}
+
+.add-alias {
+	font-size: 4.5em;
+	margin-top: -0.2em;
+	padding-left: none;
+}
+	.add-alias:hover {
+		cursor: pointer;
+		color: #41ae69;
+	}
+
+.col-xs-8 {
+	padding-right: 0;
+}
+.col-xs-4 {
+	padding-left: 5px;
+}
+
+ul {
+	padding-left: 1.4em;
+}
+	li {
+		margin: 0.2em;
+	}
+	.alias {
+		background-color: #41ae69;
+		color: white;
+		padding: 2px 5px;
+		border-radius: 4px;
+	}
+	.remove-alias {
+		font-size: 1.4em;
+	}
+		.remove-alias:hover {
+			color: #d45555;
+		}

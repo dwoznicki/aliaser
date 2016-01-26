@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<script type="text/javascript" src="jquery-1.12.0.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
 	<script type="text/javascript" src="js/popup.js"></script>
-
-	<style type="text/css">
-		body {
-			width: 30em;
-		}
-	</style>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/popup.css">
 </head>
 <body>
-	<form autocomplete='off' id='new-alias'>
-		<input type='text' id='alias-text' placeholder='alias'>
-		<input type='text' id='full-text' placeholder='full'>
-		<input type='submit' value='Add'>
-	</form>
+	<div class="container">
+		<h2>New alias:</h2>
+		<div class="row">
+			<form autocomplete='off' id='new-alias'>
+				<div class='col-xs-8'>
+					<input type='text' id='alias-text' placeholder='Change this'>
+					<i class="fa fa-arrow-right"></i>
+					<input type='text' id='full-text' placeholder='to this'>
+				</div>
+				<div class='col-xs-4'>
+					<button type='submit' class='add-alias'>
+						<i class="fa fa-plus-square"></i>
+					</button>
+				</div>
+			</form>
+		</div>
+		when I press tab.
 
-	<div id='aliases'></div>
+		<h2>My aliases:</h2>
+		<ul id='aliases'></ul>
+	</div>
 </body>
 </html>
