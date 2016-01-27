@@ -6,10 +6,8 @@ $(document).ready(function() {
 
 function bindListeners() {
 	$('#new-alias').on('submit', function(e) {
-	  e.preventDefault();
-	  var alias = $('#alias-text').val()
-	  var full = $('#full-text').val()	
-	  setAlias(alias, full);
+	  e.preventDefault();	
+	  setAlias();
 	});
 	$('#aliases').on('click', '.remove-alias', function(e) {
 		var element = $(this).parent();
@@ -18,7 +16,8 @@ function bindListeners() {
 	});
 	$('.alias-key').on('click', function(e) {
 		$('.alias-key').text('_');
-		blink($('.alias-key'), $('.alias-key').css('background-color'));
+		var background = $('.alias-key').css('background-color')
+		blink($('.alias-key'), background);
 		$(document).on('keydown', function(e) {
 			e.preventDefault()
 		  var code = (e.keyCode ? e.keyCode : e.which);
@@ -28,15 +27,17 @@ function bindListeners() {
 	});
 };
 
-function setAlias(alias, full) {
-	var save = {};
-	save[alias] = full;
-
-	chrome.storage.local.set(save, function() {
-	  console.log('Shortcut saved');
-	  var alias = $('#alias-text').val("");
-	  var full = $('#full-text').val("");
-	  getAliases();
+function setAlias() {
+	chrome.storage.local.get('aliases', function(items) {
+		var aliases = items.aliases
+		var alias = $('#alias-text').val()
+	  var full = $('#full-text').val()
+	  aliases[alias] = full
+		chrome.storage.local.set({aliases: aliases}, function() {
+		  console.log('Shortcut saved');
+		  $('#alias-text, #full-text').val("");
+		  getAliases();
+		});
 	});
 };
 
@@ -47,10 +48,20 @@ function removeAlias(alias) {
 
 function getAliases() {
 	$('#aliases').children().remove()
-	chrome.storage.local.get(null, function(items) {
-		$.each(items, function(alias, full) {
-			$('#aliases').append("<li><span class='alias'>" + alias + "</span> <i class='fa fa-arrow-right'></i> <span class='full'>" + full + "</span> <a href='#' class='remove-alias'><i class='fa fa-times-circle'></i></a></li>");
-		});
+	chrome.storage.local.get('aliases', function(items) {
+		if(items.aliases) {
+			appendItems(items);
+		} else {
+			chrome.storage.local.set({ 'aliases': {} }, function() {
+				console.log('Created aliases object')
+			});
+		};
+	});
+};
+
+function appendItems(items) {
+	$.each(items.aliases, function(alias, full) {
+		$('#aliases').append("<li><span class='alias'>" + alias + "</span> <i class='fa fa-arrow-right'></i> <span class='full'>" + full + "</span> <a href='#' class='remove-alias'><i class='fa fa-times-circle'></i></a></li>");
 	});
 };
 

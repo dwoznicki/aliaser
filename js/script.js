@@ -12,8 +12,8 @@ $('body').on('keydown', 'input, textarea', function(e) {
   };
 });
 
-chrome.storage.local.get(null, function(items) {
-  aliases = items
+chrome.storage.local.get('aliases', function(items) {
+  aliases = items.aliases
 });
 
 function replaceInput(input) {
