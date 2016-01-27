@@ -1,6 +1,7 @@
 $(document).ready(function() {
-	bindListeners()
+	bindListeners();
 	getAliases();
+	getAliasKey();
 });
 
 function bindListeners() {
@@ -14,6 +15,16 @@ function bindListeners() {
 		var element = $(this).parent();
 		var alias = element.text().split(":")[0]
 		removeAlias(alias);
+	});
+	$('.alias-key').on('click', function(e) {
+		$('.alias-key').text('_');
+		blink($('.alias-key'), $('.alias-key').css('background-color'));
+		$(document).on('keydown', function(e) {
+			e.preventDefault()
+		  var code = (e.keyCode ? e.keyCode : e.which);
+			chrome.storage.local.set({"aliasKey": code});
+			getAliasKey();
+		})
 	});
 };
 
@@ -40,5 +51,21 @@ function getAliases() {
 		$.each(items, function(alias, full) {
 			$('#aliases').append("<li><span class='alias'>" + alias + "</span> <i class='fa fa-arrow-right'></i> <span class='full'>" + full + "</span> <a href='#' class='remove-alias'><i class='fa fa-times-circle'></i></a></li>");
 		});
+	});
+};
+
+function blink(text, background) {
+	setInterval(function() {    
+		if(text.css('color') == background) {
+			text.css('color', 'white')
+		} else {
+			text.css('color', background)
+		}
+	}, 500);
+};
+
+function getAliasKey() {
+	chrome.storage.local.get("aliasKey", function(items) {
+		$('.alias-key').text(String.fromCharCode(items.aliasKey));
 	});
 };
