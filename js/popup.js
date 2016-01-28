@@ -16,14 +16,13 @@ function bindListeners() {
 	});
 	$('.alias-key').on('click', function(e) {
 		$('.alias-key').text('_');
-		var background = $('.alias-key').css('background-color')
-		blink($('.alias-key'), background);
+		var blinkTimer = setInterval(function(){ blink($('.alias-key')) }, 500);
 		$(document).on('keydown', function(e) {
 			e.preventDefault()
-		  var code = (e.keyCode ? e.keyCode : e.which);
-			chrome.storage.local.set({"aliasKey": code});
-			getAliasKey();
-		})
+			var code = (e.keyCode ? e.keyCode : e.which);
+		  setAliasKey(code);
+		});
+		clearInterval(blinkTimer)
 	});
 };
 
@@ -65,18 +64,24 @@ function appendItems(items) {
 	});
 };
 
-function blink(text, background) {
-	setInterval(function() {    
-		if(text.css('color') == background) {
-			text.css('color', 'white')
-		} else {
-			text.css('color', background)
-		}
-	}, 500);
+function blink(object) {
+	var textColor = object.css('color')
+	var backgroundColor = object.css('background-color')
+	if(object.css('color') == backgroundColor) {
+		object.css('color', textColor)
+	} else {
+		object.css('color', backgroundColor)
+	};
 };
 
 function getAliasKey() {
 	chrome.storage.local.get("aliasKey", function(items) {
 		$('.alias-key').text(String.fromCharCode(items.aliasKey));
 	});
+};
+
+function setAliasKey(code) {
+	chrome.storage.local.set({"aliasKey": code});
+	getAliasKey();
+	$(document).off('keydown');
 };
