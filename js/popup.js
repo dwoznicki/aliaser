@@ -10,19 +10,18 @@ function bindListeners() {
 	  setAlias();
 	});
 	$('#aliases').on('click', '.remove-alias', function(e) {
-		var element = $(this).parent();
-		var alias = element.text().split(":")[0]
+		var alias = $(this).siblings('.alias').text()
 		removeAlias(alias);
 	});
 	$('.alias-key').on('click', function(e) {
-		$('.alias-key').text('_');
-		var blinkTimer = setInterval(function(){ blink($('.alias-key')) }, 500);
+		e.preventDefault();
+		$('.new-key-listener').removeClass('hidden');
+		$('.new-key-listener-text').css('font-size', '2em').text("Press a key");
 		$(document).on('keydown', function(e) {
 			e.preventDefault()
-			var code = (e.keyCode ? e.keyCode : e.which);
+			var code = (e.which ? e.which : e.keyCode);
 		  setAliasKey(code);
 		});
-		clearInterval(blinkTimer)
 	});
 };
 
@@ -33,7 +32,7 @@ function setAlias() {
 	  var full = $('#full-text').val()
 	  aliases[alias] = full
 		chrome.storage.local.set({aliases: aliases}, function() {
-		  console.log('Shortcut saved');
+		  console.log("Shortcut saved");
 		  $('#alias-text, #full-text').val("");
 		  getAliases();
 		});
@@ -41,8 +40,14 @@ function setAlias() {
 };
 
 function removeAlias(alias) {
-	chrome.storage.local.remove(alias);
-	getAliases();
+	chrome.storage.local.get('aliases', function(items) {
+		var aliases = items.aliases
+		delete aliases[alias]
+		chrome.storage.local.set({aliases: aliases}, function() {
+			console.log("Alias removed")
+			getAliases();
+		});
+	});
 };
 
 function getAliases() {
@@ -64,24 +69,57 @@ function appendItems(items) {
 	});
 };
 
-function blink(object) {
-	var textColor = object.css('color')
-	var backgroundColor = object.css('background-color')
-	if(object.css('color') == backgroundColor) {
-		object.css('color', textColor)
-	} else {
-		object.css('color', backgroundColor)
-	};
+var possibleKeys = {
+	9: "TAB",
+	13: "ENTER",
+	16: "SHIFT",
+	17: "CTRL",
+	18: "ALT",
+	19: "PAUSE",
+	32: "SPACE",
+	33: "PAGE UP",
+	34: "PAGE DOWN",
+	35: "END",
+	36: "HOME",
+	37: "LEFT",
+	38: "UP",
+	39: "RIGHT",
+	40: "DOWN",
+	45: "INSERT",
+	46: "DELETE",
+	91: "COMMAND",
+	92: "WINDOW",
+	93: "SELECT",
+	96: "NUM 0",
+	97: "NUM 1",
+	98: "NUM 2",
+	99: "NUM 3",
+	100: "NUM 4",
+	101: "NUM 5",
+	102: "NUM 6",
+	103: "NUM 7",
+	104: "NUM 8",
+	105: "NUM 9",
 };
 
 function getAliasKey() {
 	chrome.storage.local.get("aliasKey", function(items) {
-		$('.alias-key').text(String.fromCharCode(items.aliasKey));
+		var codeString = possibleKeys[items.aliasKey]
+		codeString ? $('.alias-key').text(codeString) : false;
 	});
 };
 
 function setAliasKey(code) {
-	chrome.storage.local.set({"aliasKey": code});
-	getAliasKey();
-	$(document).off('keydown');
+	if(possibleKeys[code]) {
+		chrome.storage.local.set({"aliasKey": code});
+		getAliasKey();
+		$(document).off('keydown');
+		$('.new-key-listener').addClass('hidden');
+	} else if(code === 27) {
+		$(document).off('keydown');
+		$('.new-key-listener').addClass('hidden');
+	} else {
+		var invalidCodeString = '"' + String.fromCharCode(code) + '" is not a valid key.\nPlease choose another.'
+		$('.new-key-listener-text').css('font-size', '1em').text(invalidCodeString);
+	};
 };
