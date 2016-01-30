@@ -16,10 +16,10 @@ function bindListeners() {
 	$('.alias-key').on('click', function(e) {
 		e.preventDefault();
 		$('.new-key-listener').removeClass('hidden');
-		$('.new-key-listener-text').css('font-size', '2em').text("Press a key");
+		$('.new-key-listener-text').css('font-size', '2em').text("Press a key")
 		$(document).on('keydown', function(e) {
 			e.preventDefault()
-			var code = (e.which ? e.which : e.keyCode);
+			var code = (e.keyCode ? e.keyCode : e.which);
 		  setAliasKey(code);
 		});
 	});
@@ -100,12 +100,35 @@ var possibleKeys = {
 	103: "NUM 7",
 	104: "NUM 8",
 	105: "NUM 9",
+	112: "F1",
+	113: "F2",
+	114: "F3",
+	115: "F4",
+	116: "F5",
+	117: "F6",
+	118: "F7",
+	119: "F8",
+	120: "F9",
+	121: "F10",
+	122: "F11",
+	123: "F12",
+	186: ";",
+	187: "=",
+	188: ",",
+	189: "-",
+	190: ".",
+	191: "/",
+	192: "`",
+	219: "[",
+	220: "\\",
+	221: "]",
+	222: "'",
 };
 
 function getAliasKey() {
 	chrome.storage.local.get("aliasKey", function(items) {
 		var codeString = possibleKeys[items.aliasKey]
-		codeString ? $('.alias-key').text(codeString) : false;
+		codeString ? $('.alias-key').text(codeString) : $('.alias-key').text("Click to set!");
 	});
 };
 
