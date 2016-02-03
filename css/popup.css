@@ -1,7 +1,7 @@
 body {
 	color: #4c4b4b;
 	min-width: 27em;
-	font-size: 1.6em;
+	font-size: 1.2em;
 	margin: 0.3em;
 }
 
@@ -94,6 +94,14 @@ ul {
 		transform: translate(-50%, -50%);
 		background-color: #4c4b4b;
 		color: white;
-		padding: 10px 20px;
+		padding: 10px 20px 30px 20px;
 		border-radius: 5px;
+	}
+	.help-text {
+		position: absolute;
+		top: 64%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		color: white;
+		font-size: 0.8em;
 	}
