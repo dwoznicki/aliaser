@@ -11,7 +11,7 @@ To add an alias, type in the alias, the full text, and hit enter.
 
 To choose which key to autocomplete with, click the "Click to set!" button and press the key you want to autocomplete with.
 
-*Note: Certain keys (such as escape and delete) are not recognized as viable autocomplete options. As a general rule, you can't choose numbers, letters, or keys with important functions, such as 'delete'.*
+*Note: Certain keys are not recognized as viable autocomplete options. As a general rule, you can't choose numbers, letters, or keys with important functions, such as 'delete'.*
 
 <img src="imgs/set-autocomplete.png" width="250">
 
