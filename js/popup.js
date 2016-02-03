@@ -34,6 +34,7 @@ function setAlias() {
 		chrome.storage.local.set({aliases: aliases}, function() {
 		  console.log("Shortcut saved");
 		  $('#alias-text, #full-text').val("");
+		  $('#alias-text').focus()
 		  getAliases();
 		});
 	});
