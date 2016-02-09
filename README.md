@@ -23,3 +23,5 @@ To change an alias, just overwrite the old text with your new text.
 To delete an alias, click the x next to the alias you wish to remove.
 
 <img src="imgs/delete-alias.png" width="250">
+
+##### [Click here to view on chrome store](https://chrome.google.com/webstore/detail/aliaser/bbomokjkjdmglplopgcopfonlifoilbm?hl=en-US)
