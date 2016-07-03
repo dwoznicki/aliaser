@@ -11,7 +11,9 @@ chrome.storage.local.get(null, function(items) {
           input[i] = replaceInput(input[i])
         };
       };
-      $(this).val(input.join(" "))
+      this.value = input.join(" ");
+      var event = new Event('input', {bubbles: true});
+      this.dispatchEvent(event);
     };
   });
 
@@ -24,3 +26,4 @@ chrome.storage.local.get(null, function(items) {
     };
   };
 });
+
