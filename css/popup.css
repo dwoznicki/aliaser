@@ -97,11 +97,14 @@ ul {
 		padding: 10px 20px 30px 20px;
 		border-radius: 5px;
 	}
-	.help-text {
+	.new-key-listener-help {
 		position: absolute;
-		top: 64%;
+		top: 60%;
 		left: 50%;
 		transform: translate(-50%, -50%);
 		color: white;
 		font-size: 0.8em;
 	}
+	/*.dashed-border {
+		border: #4c4b4b dashed 5px;
+	}*/
