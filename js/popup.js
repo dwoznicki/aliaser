@@ -1,7 +1,7 @@
 $(document).ready(function() {
 	bindListeners();
-	getAliases();
 	getAliasKey();
+	update();
 });
 
 function bindListeners() {
@@ -16,6 +16,8 @@ function bindListeners() {
 	$('.alias-key').on('click', function(e) {
 		e.preventDefault();
 		$('.new-key-listener').removeClass('hidden');
+		$('.new-key-listener-help').removeClass('hidden');
+		$('.new-key-listener-text').removeClass('hidden');
 		$('.new-key-listener-text').css('font-size', '2em').text("Press a key")
 		$(document).on('keydown', function(e) {
 			e.preventDefault()
@@ -23,7 +25,10 @@ function bindListeners() {
 		  setAliasKey(code);
 		});
 	});
-};
+	$('#upload-file').on('click', function(e) {
+		chrome.fileBrowserHandler.on
+	});
+}
 
 function setAlias() {
 	chrome.storage.local.get('aliases', function(items) {
@@ -32,13 +37,13 @@ function setAlias() {
 	  var full = $('#full-text').val()
 	  aliases[alias] = full
 		chrome.storage.local.set({aliases: aliases}, function() {
-		  console.log("Shortcut saved");
+		  console.log("Alias saved");
 		  $('#alias-text, #full-text').val("");
 		  $('#alias-text').focus()
-		  getAliases();
+		  update();
 		});
 	});
-};
+}
 
 function removeAlias(alias) {
 	chrome.storage.local.get('aliases', function(items) {
@@ -46,29 +51,33 @@ function removeAlias(alias) {
 		delete aliases[alias]
 		chrome.storage.local.set({aliases: aliases}, function() {
 			console.log("Alias removed")
-			getAliases();
+			update();
 		});
 	});
-};
+}
 
 function getAliases() {
-	$('#aliases').children().remove()
+	var dfd = $.Deferred();
 	chrome.storage.local.get('aliases', function(items) {
 		if(items.aliases) {
+			dfd.resolve(items.aliases)
 			appendItems(items);
 		} else {
+			dfd.reject("No aliases found")
 			chrome.storage.local.set({ 'aliases': {} }, function() {
 				console.log('Created aliases object')
 			});
 		};
 	});
-};
+	return dfd.promise();
+}
 
 function appendItems(items) {
+	$('#aliases').children().remove();
 	$.each(items.aliases, function(alias, full) {
 		$('#aliases').append("<li><span class='alias'>" + alias + "</span> <i class='fa fa-arrow-right'></i> <span class='full'>" + full + "</span> <a href='#' class='remove-alias'><i class='fa fa-times-circle'></i></a></li>");
 	});
-};
+}
 
 var possibleKeys = {
 	9: "TAB",
@@ -124,14 +133,14 @@ var possibleKeys = {
 	220: "\\",
 	221: "]",
 	222: "'",
-};
+}
 
 function getAliasKey() {
 	chrome.storage.local.get("aliasKey", function(items) {
 		var codeString = possibleKeys[items.aliasKey]
 		codeString ? $('.alias-key').text(codeString) : $('.alias-key').text("Click to set!");
 	});
-};
+}
 
 function setAliasKey(code) {
 	if(possibleKeys[code]) {
@@ -139,11 +148,35 @@ function setAliasKey(code) {
 		getAliasKey();
 		$(document).off('keydown');
 		$('.new-key-listener').addClass('hidden');
+		$('.new-key-listener-help').addClass('hidden');
+		$('.new-key-listener-text').addClass('hidden');
 	} else if(code === 27) {
 		$(document).off('keydown');
 		$('.new-key-listener').addClass('hidden');
+		$('.new-key-listener-help').addClass('hidden');
+		$('.new-key-listener-text').addClass('hidden');
 	} else {
-		var invalidCodeString = '"' + String.fromCharCode(code) + '" is not a valid key.\nPlease choose another.'
+		var invalidCodeString = '"' + String.fromCharCode(code) + '" is not a valid key.\nPlease choose another.';
 		$('.new-key-listener-text').css('font-size', '1em').text(invalidCodeString);
-	};
-};
+	}
+}
+
+function update() {
+	var saveButton = $('#save-file');
+	getCsv().done(function(csv) {
+		saveButton.attr('download', 'alias.csv');
+		saveButton.attr('href', 'data:application/octet-sream,' + csv);
+	});
+}
+
+function getCsv() {
+	var dfd = $.Deferred();
+	var output = "";
+	getAliases().done(function(aliases) {
+		$.each(aliases, function(alias, full) {
+			output += alias + "%2C" + full + "%0A";
+		});
+		dfd.resolve(output);
+	});
+	return dfd.promise();
+}
