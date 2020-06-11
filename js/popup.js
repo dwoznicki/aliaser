@@ -1,3 +1,81 @@
+document.querySelector("#new-alias-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var aliasInput = document.querySelector("input[name='alias']");
+    var alias = aliasInput.value;
+    var fullTextInput = document.querySelector("input[name='full-text']");
+    var fullText = fullTextInput.value;
+
+    putAlias(alias, fullText).then(function() {
+        aliasInput.value = "";
+        fullTextInput.value = "";
+        populateList();
+    });
+
+});
+
+populateList();
+
+document.querySelector("#open-settings").addEventListener("click", function() {
+    if (chrome.runtime.openOptionsPage) {
+        chrome.runtime.openOptionsPage();
+    } else {
+        window.open(chrome.runtime.getURL("options.html"));
+    }
+});
+
+// Helpers
+function putAlias(alias, fullText) {
+    return new Promise(function(resolve, reject) {
+        chrome.storage.local.get("aliases", function(items) {
+            var aliases = items.aliases || {};
+            aliases[alias] = fullText;
+            chrome.storage.local.set({aliases}, function() {
+                console.log("Alias saved", alias, fullText);
+                resolve(aliases);
+            });
+        });
+    });
+}
+
+function populateList() {
+    var list = document.querySelector("#aliases-list");
+
+    chrome.storage.local.get("aliases", function(items) {
+        var aliases = items.aliases || {};
+
+        var listClone = list.cloneNode(false);
+
+        Object.keys(aliases).forEach(function(alias) {
+            var fullText = aliases[alias];
+            var row = createAliasRow(alias, fullText);
+            listClone.appendChild(row);
+        });
+
+        console.log(listClone);
+        list.parentNode.replaceChild(listClone, list);
+    });
+}
+
+function createAliasRow(alias, fullText) {
+    var tr = document.createElement("tr");
+
+    var aliasTd = document.createElement("td");
+    aliasTd.textContent = alias;
+    tr.appendChild(aliasTd);
+
+    var fullTextTd = document.createElement("td");
+    fullTextTd.textContent = fullText;
+    tr.appendChild(fullTextTd);
+
+    var controlsTd = document.createElement("td");
+    tr.appendChild(controlsTd);
+
+    return tr;
+}
+
+
+
+/*
 $(document).ready(function() {
 	bindListeners();
 	getAliasKey();
@@ -180,3 +258,4 @@ function getCsv() {
 	});
 	return dfd.promise();
 }
+*/

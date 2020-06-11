@@ -1,17 +1,20 @@
 {
-  "manifest_version": 2,
+    "manifest_version": 2,
 
-  "name": "Aliaser",
-  "description": "Allows users to set aliases",
-  "version": "1.4",
+    "name": "Aliaser",
+    "description": "Allows users to set aliases",
+    "version": "1.4",
 
-  "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
-  },
-  "content_scripts": [ {
-    "js": [ "js/jquery-1.12.0.min.js", "js/script.js" ],
-    "matches": [ "http://*/*", "https://*/*"]
-  }],
-  "permissions": ["storage", "http://*/*", "https://*/*"]
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_popup": "popup.html"
+    },
+    "options_page": "settings.html",
+    "content_scripts": [
+        {
+            "js": ["js/script.js"],
+            "matches": ["http://*/*", "https://*/*"]
+        }
+    ],
+    "permissions": ["storage", "http://*/*", "https://*/*"]
 }

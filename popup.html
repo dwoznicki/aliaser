@@ -1,44 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<script type="text/javascript" src="js/jquery-1.12.0.min.js"></script>
-	<script type="text/javascript" src="js/popup.js"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="css/popup.css">
-</head>
-<body>
-	<div class="container">
-		<h2>New alias:</h2>
-		<div class="row">
-			<form autocomplete='off' id='new-alias'>
-				<div class='col-xs-8'>
-					<input type='text' id='alias-text' placeholder='Change this'>
-					<i class="fa fa-arrow-right"></i>
-					<input type='text' id='full-text' placeholder='to this'>
-				</div>
-				<div class='col-xs-4'>
-					<button type='submit' class='add-alias'>
-						<i class="fa fa-plus-square"></i>
-					</button>
-				</div>
-			</form>
-		</div>
-		when I press <span class='alias-key'></span>.
+    <head>
+        <link rel="stylesheet" href="css/popup.css"/>
+    </head>
+    <body>
+        <h2>New alias</h2>
+        <form autocomplete="off" id="new-alias-form">
+            <label for="alias">Alias</label>
+            <input type="text" name="alias" placeholder="em"/>
+            <label for="full-text">Full text</label>
+            <input type="text" name="full-text" placeholder="Eublepharis macularius"/>
+            <div>
+                <button type="submit">Create</button>
+            </div>
+        </form>
 
-		<h2>My aliases:</h2>
-		<ul id='aliases'></ul>
+        <div>
+            <button type="button" id="open-settings">Settings</button>
+        </div>
 
-		<!-- <div class="row">
-			<a id='save-file' class='btn'>Save File</a>
-			<a id='upload-file' class='btn'>Upload File</a>
-		</div> -->
-
-		<div class='text-center hidden new-key-listener'>
-			<div class='new-key-listener-text hidden'></div>
-			<div class='new-key-listener-help hidden'>ESC to exit</div>
-			<!-- <div class='drag-file-text hidden'>Drag and drop .csv file here</div> -->
-		</div>
-	</div>
-</body>
+        <h2>My aliases</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Alias</th>
+                    <th>Full text</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="aliases-list">
+            </tbody>
+        </table>
+        <script type="text/javascript" src="js/popup.js"></script>
+    </body>
 </html>
+
