@@ -5,22 +5,26 @@
     </head>
     <body>
         <h2>New alias</h2>
+        <div class="replacer-key-info">
+            Replacer key: <button type="button" id="replacer-key" title="Edit replacer key"></button>
+        </div>
         <form autocomplete="off" id="new-alias-form">
-            <label for="alias">Alias</label>
-            <input type="text" name="alias" placeholder="em"/>
-            <label for="full-text">Full text</label>
-            <input type="text" name="full-text" placeholder="Eublepharis macularius"/>
-            <div>
+            <div class="field-group">
+                <label for="alias">Alias</label>
+                <input type="text" name="alias" placeholder="em"/>
+            </div>
+            <div class="field-group">
+                <label for="full-text">Full text</label>
+                <input type="text" name="full-text" placeholder="Eublepharis macularius"/>
+            </div>
+            <div class="controls-container">
                 <button type="submit">Create</button>
+                <button type="button" id="open-settings" title="Open settings">Settings</button>
             </div>
         </form>
-
-        <div>
-            <button type="button" id="open-settings">Settings</button>
-        </div>
-
+        <hr/>
         <h2>My aliases</h2>
-        <table>
+        <table id="aliases-table">
             <thead>
                 <tr>
                     <th>Alias</th>
@@ -28,9 +32,10 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody id="aliases-list">
+            <tbody id="aliases-mount">
             </tbody>
         </table>
+        <script type="text/javascript" src="js/availablekeys.js"></script>
         <script type="text/javascript" src="js/popup.js"></script>
     </body>
 </html>

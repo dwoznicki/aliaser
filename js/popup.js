@@ -1,3 +1,6 @@
+populateList();
+populateReplaceKey();
+
 document.querySelector("#new-alias-form").addEventListener("submit", function(e) {
     e.preventDefault();
     var aliasInput = document.querySelector("input[name='alias']");
@@ -8,20 +11,15 @@ document.querySelector("#new-alias-form").addEventListener("submit", function(e)
     putAlias(alias, fullText).then(function() {
         aliasInput.value = "";
         fullTextInput.value = "";
+        aliasInput.focus();
         populateList();
     });
 
 });
 
-populateList();
+document.querySelector("#open-settings").addEventListener("click", openOptionsPage);
 
-document.querySelector("#open-settings").addEventListener("click", function() {
-    if (chrome.runtime.openOptionsPage) {
-        chrome.runtime.openOptionsPage();
-    } else {
-        window.open(chrome.runtime.getURL("options.html"));
-    }
-});
+document.querySelector("#replacer-key").addEventListener("click", openOptionsPage);
 
 // Helpers
 function putAlias(alias, fullText) {
@@ -37,8 +35,21 @@ function putAlias(alias, fullText) {
     });
 }
 
+function deleteAlias(alias) {
+    return new Promise(function(resolve, reject) {
+        chrome.storage.local.get("aliases", function(items) {
+            var aliases = items.aliases || {};
+            delete aliases[alias];
+            chrome.storage.local.set({aliases}, function() {
+                console.log("Alias deleted", alias);
+                resolve(alias);
+            });
+        });
+    });
+}
+
 function populateList() {
-    var list = document.querySelector("#aliases-list");
+    var list = document.querySelector("#aliases-mount");
 
     chrome.storage.local.get("aliases", function(items) {
         var aliases = items.aliases || {};
@@ -51,8 +62,24 @@ function populateList() {
             listClone.appendChild(row);
         });
 
-        console.log(listClone);
         list.parentNode.replaceChild(listClone, list);
+    });
+}
+
+function populateReplaceKey() {
+    var keyElement = document.querySelector("#replacer-key");
+    chrome.storage.local.get("aliasKey", function(items) {
+        var aliasKey = items.aliasKey;
+        var text = "";
+        if (aliasKey) {
+            text = availableKeys[aliasKey];
+            if (!text) {
+                text = "unkown";
+            }
+        } else {
+            text = "none";
+        }
+        keyElement.textContent = text;
     });
 }
 
@@ -68,9 +95,30 @@ function createAliasRow(alias, fullText) {
     tr.appendChild(fullTextTd);
 
     var controlsTd = document.createElement("td");
+    controlsTd.appendChild(createDeleteControl(alias, tr));
     tr.appendChild(controlsTd);
 
     return tr;
+}
+
+function createDeleteControl(alias, row) {
+    var span = document.createElement("span");
+    span.classList.add("delete-alias");
+    span.innerHTML = "&#10005;";
+    span.addEventListener("click", function() {
+        deleteAlias(alias).then(function() {
+            row.parentNode.removeChild(row);
+        });
+    });
+    return span;
+}
+
+function openOptionsPage() {
+    if (chrome.runtime.openOptionsPage) {
+        chrome.runtime.openOptionsPage();
+    } else {
+        window.open(chrome.runtime.getURL("settings.html"));
+    }
 }
 
 
