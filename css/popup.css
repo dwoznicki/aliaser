@@ -51,6 +51,11 @@ input[name="full-text"] {
     justify-content: space-between;
 }
 
+.field-message {
+    display: block;
+    color: #CB4335;
+}
+
 button[type="submit"] {
     border: none;
     background: #2ECC71;

@@ -1,27 +1,44 @@
+// DOM elements reference
+var elements = {
+    replacerKey: document.querySelector("#replacer-key"),
+    aliasInput: document.querySelector("input[name='alias']"),
+    fullTextInput: document.querySelector("input[name='full-text']"),
+    aliasMessage: document.querySelector("#alias-field-message"),
+    fullTextMessage: document.querySelector("#full-text-field-message"),
+    settings: document.querySelector("#open-settings"),
+};
+
 populateList();
 populateReplaceKey();
 
 document.querySelector("#new-alias-form").addEventListener("submit", function(e) {
     e.preventDefault();
-    var aliasInput = document.querySelector("input[name='alias']");
-    var alias = aliasInput.value;
-    var fullTextInput = document.querySelector("input[name='full-text']");
-    var fullText = fullTextInput.value;
+    var alias = elements.aliasInput.value;
+    var fullText = elements.fullTextInput.value;
 
+    // Validate input.
+    resetValidation();
+    var isAliasValid = validateAlias(alias);
+    var isFullTextValid = validateFullText(fullText);
+    if (!isAliasValid || !isFullTextValid) {
+        return;
+    }
+
+    // Save alias.
     putAlias(alias, fullText).then(function() {
-        aliasInput.value = "";
-        fullTextInput.value = "";
-        aliasInput.focus();
+        elements.aliasInput.value = "";
+        elements.fullTextInput.value = "";
+        elements.aliasInput.focus();
         populateList();
     });
 
 });
 
-document.querySelector("#open-settings").addEventListener("click", openOptionsPage);
+elements.settings.addEventListener("click", openOptionsPage);
 
-document.querySelector("#replacer-key").addEventListener("click", openOptionsPage);
+elements.replacerKey.addEventListener("click", openOptionsPage);
 
-// Helpers
+// Storage
 function putAlias(alias, fullText) {
     return new Promise(function(resolve, reject) {
         chrome.storage.local.get("aliases", function(items) {
@@ -48,6 +65,7 @@ function deleteAlias(alias) {
     });
 }
 
+// DOM
 function populateList() {
     var list = document.querySelector("#aliases-mount");
 
@@ -67,7 +85,6 @@ function populateList() {
 }
 
 function populateReplaceKey() {
-    var keyElement = document.querySelector("#replacer-key");
     chrome.storage.local.get("aliasKey", function(items) {
         var aliasKey = items.aliasKey;
         var text = "";
@@ -79,7 +96,7 @@ function populateReplaceKey() {
         } else {
             text = "none";
         }
-        keyElement.textContent = text;
+        elements.replacerKey.textContent = text;
     });
 }
 
@@ -113,6 +130,32 @@ function createDeleteControl(alias, row) {
     return span;
 }
 
+// Validation
+function validateAlias(alias) {
+    if (!alias) {
+        elements.aliasMessage.textContent = "Alias cannot be blank.";
+        return false;
+    } else if (/\s+/.test(alias)) {
+        elements.aliasMessage.textContent = "Alias cannot contain whitespace.";
+        return false;
+    }
+    return true;
+}
+
+function validateFullText(fullText) {
+    if (!fullText) {
+        elements.fullTextMessage.textContent = "Full text cannot be blank.";
+        return false;
+    }
+    return true;
+}
+
+function resetValidation() {
+    elements.aliasMessage.textContent = "";
+    elements.fullTextMessage.textContent = "";
+}
+
+// Other helpers
 function openOptionsPage() {
     if (chrome.runtime.openOptionsPage) {
         chrome.runtime.openOptionsPage();
