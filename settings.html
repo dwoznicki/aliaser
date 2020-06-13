@@ -7,8 +7,16 @@
     <body>
         <h1>Settings</h1>
         <form id="settings-form">
-            <label for="alias-key">Replacer key</label>
-            <button type="button" id="replacer-key-button"></button>
+            <label for="replacer-key">Replacer key</label>
+            <button type="button" id="replacer-key-button" name="replacer-key"></button>
+            <div class="field-message" id="replacer-key-field-message"></div>
+            <div id="replacer-key-explanation">
+                Pressing this key while typing will replace all recognized aliases within the text field. Click to edit.
+                <div id="available-keys-container">
+                    <button type="button" id="toggle-available-keys"></button>
+                    <div id="available-keys" hidden></div>
+                </div>
+            </div>
         </form>
         <script type="text/javascript" src="js/availablekeys.js"></script>
         <script type="text/javascript" src="js/settings.js"></script>

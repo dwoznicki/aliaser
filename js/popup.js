@@ -11,6 +11,7 @@ var elements = {
 populateList();
 populateReplaceKey();
 
+// Listeners
 document.querySelector("#new-alias-form").addEventListener("submit", function(e) {
     e.preventDefault();
     var alias = elements.aliasInput.value;

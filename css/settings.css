@@ -1,8 +1,70 @@
+body {
+    margin: 2rem 4rem;
+}
+
 #replacer-key-button {
+    border: 0;
+    color: white;
+    border-radius: 3px;
     min-width: 10rem;
     height: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #3498DB;
 }
+
+#replacer-key-button:hover {
+    cursor: pointer;
+    background-color: #2E86C1;
+}
+
+.field-message {
+    display: block;
+    color: #CB4335;
+}
+
+#replacer-key-explanation {
+    margin-top: 1rem;
+}
+
+/* available keys */
+#available-keys-container {
+    margin-top: 0.5rem;
+}
+
+#toggle-available-keys {
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: #3498DB;
+    padding: 0;
+}
+
+#toggle-available-keys:hover {
+    cursor: pointer;
+    color: #2E86C1;
+}
+
+#available-keys {
+    margin-top: 1rem;
+    display: none;
+    flex-wrap: wrap;
+}
+
+#available-keys kbd {
+    background: none;
+    border: 1px solid #3498DB;
+    border-radius: 3px;
+    color: #3498DB;;
+    padding: 1px 2px;
+    font-family: sans-serif;
+    margin-right: 4px;
+    margin-bottom: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1rem;
+}
+
 
