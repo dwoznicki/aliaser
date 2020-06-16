@@ -13,6 +13,7 @@ var state = {
 populateReplacerKey();
 populateAvailableKeysToggle();
 populateAvailableKeys();
+populateAliasGroups();
 
 // Listeners
 elements.replacerKeyButton.addEventListener("click", function() {
@@ -36,6 +37,16 @@ elements.availableKeysToggle.addEventListener("click", function() {
     populateAvailableKeysToggle();
 });
 
+// Available since Chrome v73
+if (chrome.storage.local.onChanged) {
+    // Listen for updates to storage in real time.
+    chrome.storage.local.onChanged.addListener(function(changes, namespace) {
+        console.log("change!", changes, namespace);
+        populateAliasGroups();
+    });
+}
+
+// Storage
 function assignAliasKey(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -50,6 +61,19 @@ function assignAliasKey(e) {
 
     chrome.storage.local.set({aliasKey});
     resetReplacerKey();
+}
+
+function deleteAliasGroup(groupName) {
+    return new Promise(function(resolve, reject) {
+        chrome.storage.local.get("aliasesByGroup", function(items) {
+            var aliasesByGroup = items.aliasesByGroup || {};
+            delete aliasesByGroup[groupName];
+
+            chrome.storage.local.set({aliasesByGroup}, function() {
+                resolve();
+            });
+        });
+    });
 }
 
 // DOM
@@ -91,6 +115,64 @@ function populateAvailableKeys() {
         kbd.textContent = keys[i];
         elements.availableKeys.appendChild(kbd);
     }
+}
+
+function populateAliasGroups() {
+    var list = document.querySelector("#alias-groups-mount");
+
+    chrome.storage.local.get("aliasesByGroup", function(items) {
+        var aliasesByGroup = items.aliasesByGroup || {};
+
+        var listClone = list.cloneNode(false);
+
+        Object.keys(aliasesByGroup).forEach(function(groupName) {
+            var aliases = aliasesByGroup[groupName];
+            var count = Object.keys(aliases).length;
+
+            var row = createAliasGroupRow(groupName, count);
+            listClone.appendChild(row);
+        });
+
+        list.parentNode.replaceChild(listClone, list);
+    });
+}
+
+function createAliasGroupRow(groupName, count) {
+    var tr = document.createElement("tr");
+
+    var nameTd = document.createElement("td");
+    nameTd.textContent = groupName;
+    tr.appendChild(nameTd);
+
+    var countTd = document.createElement("td");
+    countTd.textContent = count;
+    tr.appendChild(countTd);
+
+    var controlsTd = document.createElement("td");
+    controlsTd.appendChild(createDeleteControl(groupName, count, tr));
+    tr.appendChild(controlsTd);
+
+    return tr;
+}
+
+function createDeleteControl(groupName, count, row) {
+    var span = document.createElement("span");
+    span.classList.add("delete-alias-group");
+    span.innerHTML = "&#10005;"; // X
+    span.addEventListener("click", function() {
+        // If there are aliases for this group, ask user to confirm the deletion.
+        if (count && count > 0) {
+            var ok = window.confirm(`Alias group "${groupName}" has ${count} aliases. These aliases will be lost if you delete it. Do you wish to continue?`);
+            if (!ok) {
+                return;
+            }
+        }
+
+        deleteAliasGroup(groupName).then(function() {
+            row.parentNode.removeChild(row);
+        });
+    });
+    return span;
 }
 
 // Validation

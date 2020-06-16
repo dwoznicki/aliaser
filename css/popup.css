@@ -12,6 +12,11 @@ h2 {
     margin-bottom: 0.25rem;
 }
 
+hr {
+    border: 0;
+    border-top: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
 /* replacer key */
 .replacer-key-info {
     font-size: 10px;

@@ -1,5 +1,13 @@
 body {
     margin: 2rem 4rem;
+    font-size: 14px;
+}
+
+hr {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border: 0;
+    border-top: 1px dashed rgba(0, 0, 0, 0.3);
 }
 
 #replacer-key-button {
@@ -67,4 +75,32 @@ body {
     min-width: 1rem;
 }
 
+/* alias groups table */
+#alias-groups-table {
+    border-spacing: 0;
+    width: 50%;
+}
+
+#alias-groups-table thead tr th {
+    text-align: left;
+}
+
+#alias-groups-table th:nth-child(2),
+#alias-groups-table td:nth-child(2) {
+    text-align: center;
+}
+
+#alias-groups-table th,
+#alias-groups-table td {
+    padding: 4px 6px;
+}
+
+#alias-groups-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.delete-alias-group:hover {
+    cursor: pointer;
+    color: #CB4335;
+}
 
