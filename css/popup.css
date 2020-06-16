@@ -28,6 +28,9 @@ h2 {
     color: #3498DB;;
     padding: 1px 2px;
     font-family: sans-serif;
+    min-width: 1rem;
+    display: inline-flex;
+    justify-content: center;
 }
 
 #replacer-key:hover {
@@ -48,9 +51,12 @@ input[name="full-text"] {
 
 .controls-container {
     margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
     display: flex;
-    justify-content: space-between;
+}
+
+.controls-container button {
+    margin-left: 3px;
+    margin-right: 3px;
 }
 
 .field-message {
@@ -71,17 +77,59 @@ button[type="submit"]:hover {
     background: #28B463;
 }
 
-/* settings */
-#open-settings {
+button.cancel {
+    background: white;
+    padding: 6px 12px;
+    border: 1px solid black;
+    border-radius: 3px;
+}
+
+button.cancel:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* text control */
+.text-control {
     border: none;
     background: none;
     font-size: 14px;
     color: #3498DB;
+    padding: 0;
 }
 
-#open-settings:hover {
+.text-control:hover {
     cursor: pointer;
     color: #2E86C1;
+}
+
+/* new alias */
+#new-alias-form .controls-container {
+    justify-content: space-between;
+}
+
+/* aliases header */
+#aliases-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+#aliases-header h2 {
+    display: inline-block;
+}
+
+#aliases-header select {
+    max-width: 10rem;
+    min-width: 7rem;
+    display: block;
+}
+
+/* new alias group */
+#new-alias-group-form {
+    display: none;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
+    padding: 0.5rem;
 }
 
 /* table */

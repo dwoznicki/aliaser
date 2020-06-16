@@ -1,3 +1,5 @@
+var MY_ALIASES = "my aliases";
+
 // DOM elements reference
 var elements = {
     replacerKey: document.querySelector("#replacer-key"),
@@ -6,9 +8,17 @@ var elements = {
     aliasMessage: document.querySelector("#alias-field-message"),
     fullTextMessage: document.querySelector("#full-text-field-message"),
     settings: document.querySelector("#open-settings"),
+    groupSelect: document.querySelector("#alias-group-select"),
+    newGroupOpener: document.querySelector("#open-new-alias-group"),
+    newGroupForm: document.querySelector("#new-alias-group-form"),
+    newGroupNameInput: document.querySelector("input[name='group-name']"),
+    newGroupCancelButton: document.querySelector("#cancel-new-alias-group"),
 };
 
-populateList();
+initialzeAliasGroups().then(function() {
+    populateAliasGroups();
+    populateAliases();
+});
 populateReplaceKey();
 
 // Listeners
@@ -18,7 +28,7 @@ document.querySelector("#new-alias-form").addEventListener("submit", function(e)
     var fullText = elements.fullTextInput.value;
 
     // Validate input.
-    resetValidation();
+    resetAliasValidation();
     var isAliasValid = validateAlias(alias);
     var isFullTextValid = validateFullText(fullText);
     if (!isAliasValid || !isFullTextValid) {
@@ -26,27 +36,58 @@ document.querySelector("#new-alias-form").addEventListener("submit", function(e)
     }
 
     // Save alias.
-    putAlias(alias, fullText).then(function() {
+    storeAlias(alias, fullText).then(function() {
         elements.aliasInput.value = "";
         elements.fullTextInput.value = "";
         elements.aliasInput.focus();
-        populateList();
+        populateAliases();
     });
-
 });
+
 
 elements.settings.addEventListener("click", openOptionsPage);
 
 elements.replacerKey.addEventListener("click", openOptionsPage);
 
+elements.newGroupOpener.addEventListener("click", function() {
+    elements.newGroupForm.style.display = "block";
+    elements.newGroupOpener.style.display = "none";
+    elements.newGroupNameInput.focus();
+});
+
+elements.newGroupForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    var groupName = elements.newGroupNameInput.value;
+
+    // Save alias group.
+    storeAliasGroup(groupName).then(function() {
+        changeCurrentAliasGroup(groupName).then(function() {
+            populateAliasGroups();
+            populateAliases();
+        });
+        resetNewGroupForm();
+    });
+});
+
+elements.newGroupCancelButton.addEventListener("click", function() {
+    resetNewGroupForm();
+});
+
+elements.groupSelect.addEventListener("change", function(e) {
+    var newGroupName = e.target.value;
+    changeCurrentAliasGroup(newGroupName).then(function() {
+        populateAliases();
+    });
+});
+
 // Storage
-function putAlias(alias, fullText) {
+function storeAlias(alias, fullText) {
     return new Promise(function(resolve, reject) {
         chrome.storage.local.get("aliases", function(items) {
             var aliases = items.aliases || {};
             aliases[alias] = fullText;
             chrome.storage.local.set({aliases}, function() {
-                console.log("Alias saved", alias, fullText);
+                console.debug("Alias saved", alias, fullText);
                 resolve(aliases);
             });
         });
@@ -59,19 +100,77 @@ function deleteAlias(alias) {
             var aliases = items.aliases || {};
             delete aliases[alias];
             chrome.storage.local.set({aliases}, function() {
-                console.log("Alias deleted", alias);
+                console.debug("Alias deleted", alias);
                 resolve(alias);
             });
         });
     });
 }
 
+function storeAliasGroup(groupName) {
+    return new Promise(function(resolve, reject) {
+        chrome.storage.local.get("aliasesByGroup", function(items) {
+            var aliasesByGroup = items.aliasesByGroup || {};
+            // Ignore groups that already exist.
+            if (aliasesByGroup[groupName]) {
+                resolve();
+                return;
+            }
+            aliasesByGroup[groupName] = [];
+            chrome.storage.local.set({aliasesByGroup}, function() {
+                console.debug("Alias group saved", groupName);
+                resolve(aliasesByGroup);
+            });
+        });
+    });
+}
+
+function changeCurrentAliasGroup(currentAliasGroup) {
+    return new Promise(function(resolve, reject) {
+        chrome.storage.local.set({currentAliasGroup}, function() {
+            console.debug("Current alias group changed", currentAliasGroup);
+            resolve();
+        });
+    });
+}
+
+function initialzeAliasGroups() {
+    return new Promise(function(resolve, reject) {
+        chrome.storage.local.get(null, function(items) {
+            // Already initialized.
+            if (items.aliasesByGroup && items.currentAliasGroup) {
+                // Make sure the currently selected alias group exists. If not, fall back on a different option.
+                if (!items.aliasesByGroup[items.currentAliasGroup]) {
+                    var aliasGroups = Object.keys(items.aliasesByGroup);
+                    changeCurrentAliasGroup(aliasGroups[0]).then(function() {
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+                return;
+            }
+
+            // Try to initialize base group with previous aliases, if present.
+            var currentAliasGroup = MY_ALIASES;
+            var aliasesByGroup = {};
+            aliasesByGroup[currentAliasGroup] = items.aliases || {};
+            chrome.storage.local.set({currentAliasGroup, aliasesByGroup}, function() {
+                console.debug("Aliases groups initialized", currentAliasGroup, aliasesByGroup);
+                resolve();
+            });
+        });
+    });
+}
+
 // DOM
-function populateList() {
+function populateAliases() {
     var list = document.querySelector("#aliases-mount");
 
-    chrome.storage.local.get("aliases", function(items) {
-        var aliases = items.aliases || {};
+    chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
+        var currentAliasGroup = items.currentAliasGroup || MY_ALIASES;
+        var aliasesByGroup = items.aliasesByGroup || {};
+        var aliases = aliasesByGroup[currentAliasGroup] || [];
 
         var listClone = list.cloneNode(false);
 
@@ -98,6 +197,25 @@ function populateReplaceKey() {
             text = "none";
         }
         elements.replacerKey.textContent = text;
+    });
+}
+
+function populateAliasGroups() {
+    chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
+        var currentAliasGroup = items.currentAliasGroup || MY_ALIASES;
+        var aliasesByGroup = items.aliasesByGroup || {};
+        var aliasGroups = Object.keys(aliasesByGroup) || [];
+
+        var aliasGroupOptions = aliasGroups.map(function(group) {
+            return createAliasGroupOption(group);
+        });
+
+        removeAllChildren(elements.groupSelect);
+        for (var option of aliasGroupOptions) {
+            elements.groupSelect.appendChild(option);
+        }
+
+        elements.groupSelect.value = currentAliasGroup;
     });
 }
 
@@ -131,6 +249,25 @@ function createDeleteControl(alias, row) {
     return span;
 }
 
+function resetNewGroupForm() {
+    elements.newGroupNameInput.value = "";
+    elements.newGroupForm.style.display = "none";
+    elements.newGroupOpener.style.display = "block";
+}
+
+function createAliasGroupOption(groupName) {
+    var option = document.createElement("option");
+    option.value = groupName;
+    option.textContent = groupName;
+    return option;
+}
+
+function removeAllChildren(element) {
+    while (element.firstChild) {
+        element.removeChild(element.lastChild);
+    }
+}
+
 // Validation
 function validateAlias(alias) {
     if (!alias) {
@@ -151,7 +288,7 @@ function validateFullText(fullText) {
     return true;
 }
 
-function resetValidation() {
+function resetAliasValidation() {
     elements.aliasMessage.textContent = "";
     elements.fullTextMessage.textContent = "";
 }
@@ -165,189 +302,3 @@ function openOptionsPage() {
     }
 }
 
-
-
-/*
-$(document).ready(function() {
-	bindListeners();
-	getAliasKey();
-	update();
-});
-
-function bindListeners() {
-	$('#new-alias').on('submit', function(e) {
-	  e.preventDefault();	
-	  setAlias();
-	});
-	$('#aliases').on('click', '.remove-alias', function(e) {
-		var alias = $(this).siblings('.alias').text()
-		removeAlias(alias);
-	});
-	$('.alias-key').on('click', function(e) {
-		e.preventDefault();
-		$('.new-key-listener').removeClass('hidden');
-		$('.new-key-listener-help').removeClass('hidden');
-		$('.new-key-listener-text').removeClass('hidden');
-		$('.new-key-listener-text').css('font-size', '2em').text("Press a key")
-		$(document).on('keydown', function(e) {
-			e.preventDefault()
-			var code = (e.keyCode ? e.keyCode : e.which);
-		  setAliasKey(code);
-		});
-	});
-	$('#upload-file').on('click', function(e) {
-		chrome.fileBrowserHandler.on
-	});
-}
-
-function setAlias() {
-	chrome.storage.local.get('aliases', function(items) {
-		var aliases = items.aliases
-		var alias = $('#alias-text').val()
-	  var full = $('#full-text').val()
-	  aliases[alias] = full
-		chrome.storage.local.set({aliases: aliases}, function() {
-		  console.log("Alias saved");
-		  $('#alias-text, #full-text').val("");
-		  $('#alias-text').focus()
-		  update();
-		});
-	});
-}
-
-function removeAlias(alias) {
-	chrome.storage.local.get('aliases', function(items) {
-		var aliases = items.aliases
-		delete aliases[alias]
-		chrome.storage.local.set({aliases: aliases}, function() {
-			console.log("Alias removed")
-			update();
-		});
-	});
-}
-
-function getAliases() {
-	var dfd = $.Deferred();
-	chrome.storage.local.get('aliases', function(items) {
-		if(items.aliases) {
-			dfd.resolve(items.aliases)
-			appendItems(items);
-		} else {
-			dfd.reject("No aliases found")
-			chrome.storage.local.set({ 'aliases': {} }, function() {
-				console.log('Created aliases object')
-			});
-		};
-	});
-	return dfd.promise();
-}
-
-function appendItems(items) {
-	$('#aliases').children().remove();
-	$.each(items.aliases, function(alias, full) {
-		$('#aliases').append("<li><span class='alias'>" + alias + "</span> <i class='fa fa-arrow-right'></i> <span class='full'>" + full + "</span> <a href='#' class='remove-alias'><i class='fa fa-times-circle'></i></a></li>");
-	});
-}
-
-var possibleKeys = {
-	9: "TAB",
-	13: "ENTER",
-	16: "SHIFT",
-	17: "CTRL",
-	18: "ALT",
-	19: "PAUSE",
-	32: "SPACE",
-	33: "PAGE UP",
-	34: "PAGE DOWN",
-	35: "END",
-	36: "HOME",
-	37: "LEFT",
-	38: "UP",
-	39: "RIGHT",
-	40: "DOWN",
-	45: "INSERT",
-	46: "DELETE",
-	91: "COMMAND",
-	92: "WINDOW",
-	93: "SELECT",
-	96: "NUM 0",
-	97: "NUM 1",
-	98: "NUM 2",
-	99: "NUM 3",
-	100: "NUM 4",
-	101: "NUM 5",
-	102: "NUM 6",
-	103: "NUM 7",
-	104: "NUM 8",
-	105: "NUM 9",
-	112: "F1",
-	113: "F2",
-	114: "F3",
-	115: "F4",
-	116: "F5",
-	117: "F6",
-	118: "F7",
-	119: "F8",
-	120: "F9",
-	121: "F10",
-	122: "F11",
-	123: "F12",
-	186: ";",
-	187: "=",
-	188: ",",
-	189: "-",
-	190: ".",
-	191: "/",
-	192: "`",
-	219: "[",
-	220: "\\",
-	221: "]",
-	222: "'",
-}
-
-function getAliasKey() {
-	chrome.storage.local.get("aliasKey", function(items) {
-		var codeString = possibleKeys[items.aliasKey]
-		codeString ? $('.alias-key').text(codeString) : $('.alias-key').text("Click to set!");
-	});
-}
-
-function setAliasKey(code) {
-	if(possibleKeys[code]) {
-		chrome.storage.local.set({"aliasKey": code});
-		getAliasKey();
-		$(document).off('keydown');
-		$('.new-key-listener').addClass('hidden');
-		$('.new-key-listener-help').addClass('hidden');
-		$('.new-key-listener-text').addClass('hidden');
-	} else if(code === 27) {
-		$(document).off('keydown');
-		$('.new-key-listener').addClass('hidden');
-		$('.new-key-listener-help').addClass('hidden');
-		$('.new-key-listener-text').addClass('hidden');
-	} else {
-		var invalidCodeString = '"' + String.fromCharCode(code) + '" is not a valid key.\nPlease choose another.';
-		$('.new-key-listener-text').css('font-size', '1em').text(invalidCodeString);
-	}
-}
-
-function update() {
-	var saveButton = $('#save-file');
-	getCsv().done(function(csv) {
-		saveButton.attr('download', 'alias.csv');
-		saveButton.attr('href', 'data:application/octet-sream,' + csv);
-	});
-}
-
-function getCsv() {
-	var dfd = $.Deferred();
-	var output = "";
-	getAliases().done(function(aliases) {
-		$.each(aliases, function(alias, full) {
-			output += alias + "%2C" + full + "%0A";
-		});
-		dfd.resolve(output);
-	});
-	return dfd.promise();
-}
-*/

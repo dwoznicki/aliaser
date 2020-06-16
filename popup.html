@@ -21,11 +21,32 @@
             </div>
             <div class="controls-container">
                 <button type="submit">Create</button>
-                <button type="button" id="open-settings" title="Open settings">Settings</button>
+                <button type="button" id="open-settings" class="text-control" title="Open settings">Settings</button>
             </div>
         </form>
         <hr/>
-        <h2>My aliases</h2>
+        <div id="aliases-header">
+            <h2>Aliases</h2>
+            <div>
+                <select name="alias-group" id="alias-group-select">
+                    <option value="my aliases">my aliases</option>
+                </select>
+                <button type="button" class="text-control" id="open-new-alias-group">
+                    New alias group
+                </button>
+            </div>
+        </div>
+        <form id="new-alias-group-form">
+            <div class="field-group">
+                <label for="group-name">Group name</label>
+                <input type="text" name="group-name"/>
+                <small class="field-message" id="group-name-field-message"></small>
+            </div>
+            <div class="controls-container">
+                <button type="submit">Create</button>
+                <button type="button" id="cancel-new-alias-group" class="cancel">Cancel</button>
+            </div>
+        </form>
         <table id="aliases-table">
             <thead>
                 <tr>
