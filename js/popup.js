@@ -83,10 +83,22 @@ elements.groupSelect.addEventListener("change", function(e) {
 // Storage
 function storeAlias(alias, fullText) {
     return new Promise(function(resolve, reject) {
-        chrome.storage.local.get("aliases", function(items) {
-            var aliases = items.aliases || {};
+        chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
+            var currentAliasGroup = items.currentAliasGroup;
+            if (!currentAliasGroup) {
+                // TODO reject
+            }
+            var aliasesByGroup = items.aliasesByGroup;
+            var aliases = aliasesByGroup[currentAliasGroup]
+            // temp fix?
+            if (Array.isArray(aliases)) {
+                aliases = {};
+            }
+
             aliases[alias] = fullText;
-            chrome.storage.local.set({aliases}, function() {
+            aliasesByGroup[currentAliasGroup] = aliases;
+
+            chrome.storage.local.set({aliasesByGroup}, function() {
                 console.debug("Alias saved", alias, fullText);
                 resolve(aliases);
             });
@@ -96,10 +108,17 @@ function storeAlias(alias, fullText) {
 
 function deleteAlias(alias) {
     return new Promise(function(resolve, reject) {
-        chrome.storage.local.get("aliases", function(items) {
-            var aliases = items.aliases || {};
+        chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
+            var currentAliasGroup = items.currentAliasGroup;
+            if (!currentAliasGroup) {
+                // TODO reject
+            }
+            var aliasesByGroup = items.aliasesByGroup;
+            var aliases = aliasesByGroup[currentAliasGroup]
+
             delete aliases[alias];
-            chrome.storage.local.set({aliases}, function() {
+
+            chrome.storage.local.set({aliasesByGroup}, function() {
                 console.debug("Alias deleted", alias);
                 resolve(alias);
             });
@@ -170,7 +189,7 @@ function populateAliases() {
     chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
         var currentAliasGroup = items.currentAliasGroup || MY_ALIASES;
         var aliasesByGroup = items.aliasesByGroup || {};
-        var aliases = aliasesByGroup[currentAliasGroup] || [];
+        var aliases = aliasesByGroup[currentAliasGroup] || {};
 
         var listClone = list.cloneNode(false);
 
@@ -240,7 +259,7 @@ function createAliasRow(alias, fullText) {
 function createDeleteControl(alias, row) {
     var span = document.createElement("span");
     span.classList.add("delete-alias");
-    span.innerHTML = "&#10005;";
+    span.innerHTML = "&#10005;"; // X
     span.addEventListener("click", function() {
         deleteAlias(alias).then(function() {
             row.parentNode.removeChild(row);
