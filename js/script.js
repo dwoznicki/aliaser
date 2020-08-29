@@ -31,6 +31,9 @@ document.body.addEventListener("keydown", function(e) {
             e.preventDefault();
             // Replace current input value.
             e.target.value = valueTokens.join(" ");
+            // Dispatch an input event so React understands the new value.
+            var event = new Event("input", { bubbles: true });
+            e.target.dispatchEvent(event);
         }
     }
 });
