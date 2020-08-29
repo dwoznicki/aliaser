@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 2rem 4rem;
     font-size: 14px;
@@ -8,6 +12,23 @@ hr {
     margin-bottom: 2rem;
     border: 0;
     border-top: 1px dashed rgba(0, 0, 0, 0.3);
+}
+
+.hidden {
+    display: none;
+}
+
+.button-as-text {
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: #3498DB;
+    padding: 0;
+}
+
+.button-as-text:hover {
+    cursor: pointer;
+    color: #2E86C1;
 }
 
 #replacer-key-button {
@@ -41,19 +62,6 @@ hr {
     margin-top: 0.5rem;
 }
 
-#toggle-available-keys {
-    border: none;
-    background: none;
-    font-size: 14px;
-    color: #3498DB;
-    padding: 0;
-}
-
-#toggle-available-keys:hover {
-    cursor: pointer;
-    color: #2E86C1;
-}
-
 #available-keys {
     margin-top: 1rem;
     display: none;
@@ -75,13 +83,33 @@ hr {
     min-width: 1rem;
 }
 
-/* alias groups table */
-#alias-groups-table {
-    border-spacing: 0;
-    width: 50%;
+/* tables */
+#alias-tables {
+    display: flex;
 }
 
-#alias-groups-table thead tr th {
+#alias-tables > * {
+    width: 100%;
+    /* padding-bottom: 2rem; */
+}
+
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+table th, table td {
+    padding: 4px 6px;
+}
+
+table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+#alias-groups-table thead tr th,
+#aliases-table thead tr th {
     text-align: left;
 }
 
@@ -90,17 +118,81 @@ hr {
     text-align: center;
 }
 
-#alias-groups-table th,
-#alias-groups-table td {
-    padding: 4px 6px;
+#alias-groups-table tbody tr {
+    height: 2.2rem;
+    /* Prevents the table from nudging when a border is added on drag hover */
+    border: 1px solid transparent;
+}
+
+#alias-groups-table tbody tr.selected {
+    background-color: rgba(52, 152, 219, 0.3);
+}
+
+#alias-groups-table tbody tr.drag-hovered {
+    background-color: rgba(52, 152, 219, 0.1);
+    /* border: 1px dashed rgba(0, 0, 0, 0.3); */
 }
 
 #alias-groups-table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
 }
 
-.delete-alias-group:hover {
+#alias-groups-table tbody tr td:last-child,
+#aliases-table tbody tr td:last-child {
+    /* position the X more nicely */
+    text-align: right;
+    padding-right: 1rem;
+}
+
+.delete-alias-group:hover, .delete-alias:hover {
     cursor: pointer;
     color: #CB4335;
+}
+
+#aliases-table-container {
+    margin-left: 2rem;
+}
+
+/*
+#no-alias-group-selected-message {
+    padding: 1rem;
+}
+
+#aliases-table-container {
+    margin: auto 0 auto 2rem;
+    border: 1px dashed rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+*/
+
+#alias-table-message {
+    display: flex;
+    align-items: center;
+}
+
+span.drag-handle {
+    cursor: grab;
+}
+
+span.flip-arrows {
+    transform: scaleX(-1);
+    display: inline-block;
+}
+
+/* alias group header */
+#alias-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+/* new alias group */
+#new-alias-group-form {
+    display: none;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
+    padding: 0.5rem;
 }
 

@@ -3,35 +3,75 @@
     <head>
         <title>Aliaser settings</title>
         <link rel="stylesheet" href="css/settings.css"/>
+        <link rel="stylesheet" href="css/shared.css"/>
     </head>
     <body>
         <h1>Settings</h1>
-        <h2>Replacer</h2>
-        <form id="settings-form">
-            <label for="replacer-key">Replacer key</label>
-            <button type="button" id="replacer-key-button" name="replacer-key"></button>
-            <div class="field-message" id="replacer-key-field-message"></div>
-            <div id="replacer-key-explanation">
-                Pressing this key while typing will replace all recognized aliases within the text field. Click to edit.
-                <div id="available-keys-container">
-                    <button type="button" id="toggle-available-keys"></button>
-                    <div id="available-keys" hidden></div>
+        <section>
+            <h2>Replacer</h2>
+            <form id="settings-form">
+                <label for="replacer-key">Replacer key</label>
+                <button type="button" id="replacer-key-button" name="replacer-key"></button>
+                <div class="field-message" id="replacer-key-field-message"></div>
+                <div id="replacer-key-explanation">
+                    Pressing this key while typing will replace all recognized aliases within the text field. Click to edit.
+                    <div id="available-keys-container">
+                        <button type="button" id="toggle-available-keys" class="text-control"></button>
+                        <div id="available-keys" hidden></div>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </section>
         <hr/>
-        <h2>Alias groups</h2>
-        <table id="alias-groups-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Alias count</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody id="alias-groups-mount"></tbody>
-        </table>
+        <section id="alias-tables">
+            <div>
+                <div id="alias-group-header">
+                    <h2>Alias groups</h2>
+                    <button type="button" id="open-new-alias-group" class="text-control">
+                        New alias group
+                    </button>
+                </div>
+                <form id="new-alias-group-form">
+                    <div class="field-group">
+                        <label for="group-name">Group name</label>
+                        <input type="text" name="group-name"/>
+                        <small class="field-message" id="group-name-field-message"></small>
+                    </div>
+                    <div class="controls-container">
+                        <button type="submit">Create</button>
+                        <button type="button" id="cancel-new-alias-group" class="cancel">Cancel</button>
+                    </div>
+                </form>
+                <table id="alias-groups-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Count</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="alias-groups-mount"></tbody>
+                </table>
+            </div>
+            <div id="aliases-table-container">
+                <h2>Aliases</h2>
+                <div id="alias-table-message">
+                    Nothing selected. Click an alias group to view aliases.
+                </div>
+                <table id="aliases-table" class="hidden">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Alias</th>
+                            <th>Full text</th>
+                        </tr>
+                    </thead>
+                    <tbody id="aliases-mount"></tbody>
+                </table>
+            </div>
+        </section>
         <script type="text/javascript" src="js/availablekeys.js"></script>
+        <script type="text/javascript" src="js/api.js"></script>
         <script type="text/javascript" src="js/settings.js"></script>
     </body>
 </html>

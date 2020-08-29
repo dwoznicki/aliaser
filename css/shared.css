@@ -1,0 +1,72 @@
+/* form */
+.field-group label {
+    display: block;
+    font-size: 12px;
+}
+
+input[name="full-text"] {
+    width: 100%;
+}
+
+.controls-container {
+    margin-top: 0.5rem;
+    display: flex;
+}
+
+.controls-container button {
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.field-message {
+    display: block;
+    color: #CB4335;
+}
+
+button[type="submit"] {
+    border: none;
+    background: #2ECC71;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 3px;
+}
+
+button[type="submit"]:hover {
+    cursor: pointer;
+    background: #28B463;
+}
+
+button.cancel {
+    background: white;
+    padding: 6px 12px;
+    border: 1px solid black;
+    border-radius: 3px;
+}
+
+button.cancel:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* text control */
+.text-control {
+    border: none;
+    background: none;
+    font-size: 14px;
+    color: #3498DB;
+    padding: 0;
+}
+
+.text-control:hover {
+    cursor: pointer;
+    color: #2E86C1;
+}
+
+/* new alias group */
+#new-alias-group-form {
+    display: none;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 3px;
+    padding: 0.5rem;
+}
+

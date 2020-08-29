@@ -12,10 +12,11 @@ var elements = {
     newGroupOpener: document.querySelector("#open-new-alias-group"),
     newGroupForm: document.querySelector("#new-alias-group-form"),
     newGroupNameInput: document.querySelector("input[name='group-name']"),
+    newAliasGroupMessage: document.querySelector("#group-name-field-message"),
     newGroupCancelButton: document.querySelector("#cancel-new-alias-group"),
 };
 
-initialzeAliasGroups().then(function() {
+API.initializeAliasGroupsV1ToV2().then(function() {
     populateAliasGroups();
     populateAliases();
 });
@@ -36,7 +37,7 @@ document.querySelector("#new-alias-form").addEventListener("submit", function(e)
     }
 
     // Save alias.
-    storeAlias(alias, fullText).then(function() {
+    API.storeAlias(alias, fullText).then(function() {
         elements.aliasInput.value = "";
         elements.fullTextInput.value = "";
         elements.aliasInput.focus();
@@ -59,9 +60,15 @@ elements.newGroupForm.addEventListener("submit", function(e) {
     e.preventDefault();
     var groupName = elements.newGroupNameInput.value;
 
+    // Validate new alias group name.
+    resetAliasGroupValidation();
+    if (!validateAliasGroup(groupName)) {
+        return;
+    }
+
     // Save alias group.
-    storeAliasGroup(groupName).then(function() {
-        changeCurrentAliasGroup(groupName).then(function() {
+    API.storeAliasGroup(groupName).then(function() {
+        API.changeCurrentAliasGroup(groupName).then(function() {
             populateAliasGroups();
             populateAliases();
         });
@@ -71,116 +78,15 @@ elements.newGroupForm.addEventListener("submit", function(e) {
 
 elements.newGroupCancelButton.addEventListener("click", function() {
     resetNewGroupForm();
+    resetAliasGroupValidation();
 });
 
 elements.groupSelect.addEventListener("change", function(e) {
     var newGroupName = e.target.value;
-    changeCurrentAliasGroup(newGroupName).then(function() {
+    API.changeCurrentAliasGroup(newGroupName).then(function() {
         populateAliases();
     });
 });
-
-// Storage
-function storeAlias(alias, fullText) {
-    return new Promise(function(resolve, reject) {
-        chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
-            var currentAliasGroup = items.currentAliasGroup;
-            if (!currentAliasGroup) {
-                // TODO reject
-            }
-            var aliasesByGroup = items.aliasesByGroup;
-            var aliases = aliasesByGroup[currentAliasGroup]
-            // temp fix?
-            if (Array.isArray(aliases)) {
-                aliases = {};
-            }
-
-            aliases[alias] = fullText;
-            aliasesByGroup[currentAliasGroup] = aliases;
-
-            chrome.storage.local.set({aliasesByGroup}, function() {
-                console.debug("Alias saved", alias, fullText);
-                resolve(aliases);
-            });
-        });
-    });
-}
-
-function deleteAlias(alias) {
-    return new Promise(function(resolve, reject) {
-        chrome.storage.local.get(["currentAliasGroup", "aliasesByGroup"], function(items) {
-            var currentAliasGroup = items.currentAliasGroup;
-            if (!currentAliasGroup) {
-                // TODO reject
-            }
-            var aliasesByGroup = items.aliasesByGroup;
-            var aliases = aliasesByGroup[currentAliasGroup]
-
-            delete aliases[alias];
-
-            chrome.storage.local.set({aliasesByGroup}, function() {
-                console.debug("Alias deleted", alias);
-                resolve(alias);
-            });
-        });
-    });
-}
-
-function storeAliasGroup(groupName) {
-    return new Promise(function(resolve, reject) {
-        chrome.storage.local.get("aliasesByGroup", function(items) {
-            var aliasesByGroup = items.aliasesByGroup || {};
-            // Ignore groups that already exist.
-            if (aliasesByGroup[groupName]) {
-                resolve();
-                return;
-            }
-            aliasesByGroup[groupName] = [];
-            chrome.storage.local.set({aliasesByGroup}, function() {
-                console.debug("Alias group saved", groupName);
-                resolve(aliasesByGroup);
-            });
-        });
-    });
-}
-
-function changeCurrentAliasGroup(currentAliasGroup) {
-    return new Promise(function(resolve, reject) {
-        chrome.storage.local.set({currentAliasGroup}, function() {
-            console.debug("Current alias group changed", currentAliasGroup);
-            resolve();
-        });
-    });
-}
-
-function initialzeAliasGroups() {
-    return new Promise(function(resolve, reject) {
-        chrome.storage.local.get(null, function(items) {
-            // Already initialized.
-            if (items.aliasesByGroup && items.currentAliasGroup) {
-                // Make sure the currently selected alias group exists. If not, fall back on a different option.
-                if (!items.aliasesByGroup[items.currentAliasGroup]) {
-                    var aliasGroups = Object.keys(items.aliasesByGroup);
-                    changeCurrentAliasGroup(aliasGroups[0]).then(function() {
-                        resolve();
-                    });
-                } else {
-                    resolve();
-                }
-                return;
-            }
-
-            // Try to initialize base group with previous aliases, if present.
-            var currentAliasGroup = MY_ALIASES;
-            var aliasesByGroup = {};
-            aliasesByGroup[currentAliasGroup] = items.aliases || {};
-            chrome.storage.local.set({currentAliasGroup, aliasesByGroup}, function() {
-                console.debug("Aliases groups initialized", currentAliasGroup, aliasesByGroup);
-                resolve();
-            });
-        });
-    });
-}
 
 // DOM
 function populateAliases() {
@@ -261,7 +167,7 @@ function createDeleteControl(alias, row) {
     span.classList.add("delete-alias");
     span.innerHTML = "&#10005;"; // X
     span.addEventListener("click", function() {
-        deleteAlias(alias).then(function() {
+        API.deleteAlias(alias).then(function() {
             row.parentNode.removeChild(row);
         });
     });
@@ -301,7 +207,7 @@ function validateAlias(alias) {
 
 function validateFullText(fullText) {
     if (!fullText) {
-        elements.fullTextMessage.textContent = "Full text cannot be blank.";
+        elements.fullTextMessage.textContent = "Full text cannot be empty.";
         return false;
     }
     return true;
@@ -310,6 +216,22 @@ function validateFullText(fullText) {
 function resetAliasValidation() {
     elements.aliasMessage.textContent = "";
     elements.fullTextMessage.textContent = "";
+}
+
+function validateAliasGroup(groupName) {
+    if (!groupName) {
+        elements.newAliasGroupMessage.textContent = "Alias group names cannot be empty.";
+        return false;
+    }
+    if (/^\s*$/.test(groupName)) {
+        elements.newAliasGroupMessage.textContent = "Alias group names cannot be blank.";
+        return false;
+    }
+    return true;
+}
+
+function resetAliasGroupValidation() {
+    elements.newAliasGroupMessage.textContent = "";
 }
 
 // Other helpers
