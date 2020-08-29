@@ -10,6 +10,8 @@ var elements = {
     newGroupNameInput: document.querySelector("input[name='group-name']"),
     newGroupCancelButton: document.querySelector("#cancel-new-alias-group"),
     newAliasGroupMessage: document.querySelector("#group-name-field-message"),
+    inspectV1AliasesButton: document.querySelector("#inspect-v1-aliases-button"),
+    rawV1AliasesCodeBlock: document.querySelector("#raw-v1-aliases"),
 };
 
 var state = {
@@ -72,6 +74,12 @@ elements.newGroupOpener.addEventListener("click", function() {
 elements.newGroupCancelButton.addEventListener("click", function() {
     resetNewGroupForm();
     resetAliasGroupValidation();
+});
+
+elements.inspectV1AliasesButton.addEventListener("click", function() {
+    API.getV1Aliases().then(function(aliases) {
+        elements.rawV1AliasesCodeBlock.textContent = JSON.stringify(aliases, null, 2);
+    });
 });
 
 // Drag & drop

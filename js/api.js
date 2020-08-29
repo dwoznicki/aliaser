@@ -147,6 +147,14 @@ var API = (function() {
         });
     }
 
+    function getV1Aliases() {
+        return new Promise(function(resolve, reject) {
+            chrome.storage.local.get("aliases", function(items) {
+                resolve(items.aliases);
+            });
+        });
+    }
+
     return {
         storeAlias: storeAlias,
         deleteAlias: deleteAlias,
@@ -155,6 +163,7 @@ var API = (function() {
         changeCurrentAliasGroup: changeCurrentAliasGroup,
         deleteAliasGroup: deleteAliasGroup,
         initializeAliasGroupsV1ToV2: initializeAliasGroupsV1ToV2,
+        getV1Aliases: getV1Aliases,
     };
 })();
 
